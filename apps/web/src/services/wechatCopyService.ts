@@ -197,6 +197,20 @@ const isHeadingElement = (node: HTMLElement): boolean => {
 };
 
 /**
+ * 判断元素是否应使用 margin 而非 padding 迁移水平留白。
+ * 含 border / background 的块级元素（标题、引用、代码块、提示块）需用 margin，
+ * 否则 padding 只会把内容往里推，边框和背景仍贴在容器边缘。
+ */
+const shouldUseMarginForHorizontalOffset = (node: HTMLElement): boolean => {
+  if (isHeadingElement(node)) return true;
+  const tagName = node.tagName;
+  if (tagName === "BLOCKQUOTE") return true;
+  if (tagName === "PRE") return true;
+  if (node.classList.contains("callout")) return true;
+  return false;
+};
+
+/**
  * 微信编辑器会清理粘贴内容最外层元素的 padding。
  * 复制前将根节点 padding 迁移到内层包裹元素，确保页面左右留白生效。
  */
@@ -225,7 +239,8 @@ const relocateRootPaddingToInnerWrapper = (container: HTMLElement): void => {
   // 左右留白优先下沉到一级内容块，避免微信清洗外层容器 padding。
   if (hasHorizontalPadding && elementChildren.length > 0) {
     elementChildren.forEach((child) => {
-      const useMarginForHorizontalOffset = isHeadingElement(child);
+      const useMarginForHorizontalOffset =
+        shouldUseMarginForHorizontalOffset(child);
       if (!isZeroSpacing(paddingLeft)) {
         if (useMarginForHorizontalOffset) {
           const existingMarginLeft = child.style

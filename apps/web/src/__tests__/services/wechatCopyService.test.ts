@@ -373,7 +373,7 @@ describe("wechatCopyService clipboard strategy", () => {
     expect((paragraphs[1] as HTMLElement).style.paddingRight).toBe("16px");
   });
 
-  it("merges root horizontal padding with existing child padding", () => {
+  it("keeps blockquote inner padding and relocates root horizontal padding via margin", () => {
     const container = document.createElement("div");
     container.innerHTML =
       '<section id="wemd" style="padding: 0px 16px;"><blockquote style="padding: 12px 10px;"><p>A</p></blockquote></section>';
@@ -382,10 +382,40 @@ describe("wechatCopyService clipboard strategy", () => {
 
     const blockquote = container.querySelector("blockquote") as HTMLElement;
     expect(blockquote).toBeTruthy();
-    expect(blockquote.style.paddingLeft).toContain("26px");
-    expect(blockquote.style.paddingRight).toContain("26px");
-    expect(blockquote.style.paddingTop).toBe("12px");
-    expect(blockquote.style.paddingBottom).toBe("12px");
+    expect(blockquote.style.paddingLeft).toBe("10px");
+    expect(blockquote.style.paddingRight).toBe("10px");
+    expect(blockquote.style.marginLeft).toBe("16px");
+    expect(blockquote.style.marginRight).toBe("16px");
+  });
+
+  it("keeps callout inner padding and relocates root horizontal padding via margin", () => {
+    const container = document.createElement("div");
+    container.innerHTML =
+      '<section id="wemd" style="padding: 0px 16px;"><section class="callout callout-note" style="padding: 12px 16px;"><div class="callout-title">Note</div><p>内容</p></section></section>';
+
+    normalizeCopyContainer(container);
+
+    const callout = container.querySelector(".callout") as HTMLElement;
+    expect(callout).toBeTruthy();
+    expect(callout.style.paddingLeft).toBe("16px");
+    expect(callout.style.paddingRight).toBe("16px");
+    expect(callout.style.marginLeft).toBe("16px");
+    expect(callout.style.marginRight).toBe("16px");
+  });
+
+  it("keeps pre inner padding and relocates root horizontal padding via margin", () => {
+    const container = document.createElement("div");
+    container.innerHTML =
+      '<section id="wemd" style="padding: 0px 16px;"><pre style="padding: 10px 12px; background: rgb(30,30,30);"><code>console.log(1)</code></pre></section>';
+
+    normalizeCopyContainer(container);
+
+    const pre = container.querySelector("pre") as HTMLElement;
+    expect(pre).toBeTruthy();
+    expect(pre.style.paddingLeft).toBe("12px");
+    expect(pre.style.paddingRight).toBe("12px");
+    expect(pre.style.marginLeft).toBe("16px");
+    expect(pre.style.marginRight).toBe("16px");
   });
 
   it("keeps heading inner padding and relocates root horizontal padding via margin", () => {
